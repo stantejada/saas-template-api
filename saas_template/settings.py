@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,7 +48,7 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK ={
     'DEFAULT_AUTHENTICATION_CLASSES' : (
-        'rest_framework_simplejwt.authentication.JWTauthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES' : (
         'rest_framework.permissions.IsAuthenticated',
@@ -99,8 +100,12 @@ WSGI_APPLICATION = 'saas_template.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',  # or sqlite3
+        'NAME': os.environ.get('POSTGRES_DB', 'saas_db'),
+        'USER': os.environ.get('POSTGRES_USER', 'saas_user'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'saas_pass'),
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
 
