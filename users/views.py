@@ -1,12 +1,21 @@
 from django.shortcuts import render
 
-from rest_framework import viewsets, filters # type: ignore
-from rest_framework_simplejwt.authentication import JWTAuthentication # type: ignore
-from rest_framework.permissions import IsAuthenticated # type: ignore
+from rest_framework import viewsets, filters, generics
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 
 
 from . import models, serializers
 from . import permissions
+from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer
+
+from users.models import UserProfile
 
 # Create your views here.
 
@@ -19,3 +28,28 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'email',)
+
+class UserRegistrationView(generics.CreateAPIView):
+    """ Register a new user"""
+    serializer_class = UserRegistrationSerializer
+    permission_classes = [AllowAny]
+
+
+class VerifyEmailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        token = request.GET.get('token')
+        try:
+            user = UserProfile.objects.get(verification_token=token)
+            user.is_verified = True
+            user.verification_token = None
+            user.save()
+            return Response({'detail':'Email verified successfully!'})
+        except UserProfile.DoesNotExist:
+            return Response({'detail':'Invalid token'},status=status.HTTP_400_BAD_REQUEST)
+        
+
+    
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
