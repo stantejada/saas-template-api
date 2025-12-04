@@ -55,7 +55,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             verification_token = str(uuid.uuid4())
         )
         user.set_password(validated_data['password'])
-        user.verification_token = str(uuid.uuid4())
         user.save()
         return user
     

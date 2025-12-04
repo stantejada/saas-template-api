@@ -40,16 +40,14 @@ class VerifyEmailView(APIView):
 
     def get(self, request):
         token = request.GET.get('token')
-        try:
-            user = UserProfile.objects.get(verification_token=token)
-            user.is_verified = True
-            user.verification_token = None
-            user.save()
-            return Response({'detail':'Email verified successfully!'})
-        except UserProfile.DoesNotExist:
-            return Response({'detail':'Invalid token'},status=status.HTTP_400_BAD_REQUEST)
-        
+        user = UserProfile.objects.filter(verification_token=token).first()
+        if not user:
+            return Response({'detail':'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
+        user.is_verified = True
+        user.verification_token = None
+        user.save()
+        return Response({'detail':'Email verified successfully!'})
     
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
