@@ -9,7 +9,10 @@ class Subscription(models.Model):
         ('enterprise', 'enterprise')
     ]
 
-    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        UserProfile, 
+        on_delete=models.CASCADE,
+        related_name='billing_subscriptions')
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='free')
     active = models.BooleanField(default=True)
 

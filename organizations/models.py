@@ -44,3 +44,13 @@ class TeamMembership(models.Model):
 
     class Meta:
         unique_together  = ('user', 'team')
+
+class Subscription(models.Model):
+    user= models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name='org_subscriptions')
+    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE)
+    plan = models.CharField(max_length=255)
+    active = models.BooleanField(default=True)
+    

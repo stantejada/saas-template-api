@@ -10,15 +10,11 @@ Features included:
 
 * Password reset ✅
 
-* Organizations / Teams
+* Organizations / Teams ✅
 
 * User roles (Owner, Admin, Member)
 
 * Stripe subscription billing ✅
-
-* Rate limiting
-
-* API keys for external apps
 
 * Audit logs
 
