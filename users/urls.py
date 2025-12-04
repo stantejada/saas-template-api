@@ -9,6 +9,8 @@ urlpatterns = [
     path('', include(router.urls)),
     path('auth/register/', views.UserRegistrationView.as_view(), name='register'),
     path('auth/verify-email/', views.VerifyEmailView.as_view(), name='verify-email'),
+    path('auth/forgot-password/', views.PasswordResetRequestView.as_view(), name='forgot-password'),
+    path('auth/reset-password/', views.PasswordResetView.as_view(), name="reset-password"),
 ]
 
 

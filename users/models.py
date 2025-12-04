@@ -41,6 +41,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_verified = models.BooleanField(default=False)
     verification_token = models.CharField(max_length=255, blank=True, null=True)
 
+    password_reset_token = models.CharField(max_length=255, blank=True, null=True)
+    password_reset_token_expiry = models.DateTimeField(blank=True, null=True)
 
     objects = UserProfileManager()
 

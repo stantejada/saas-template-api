@@ -53,3 +53,24 @@ class VerifyEmailView(APIView):
     
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+
+class PasswordResetRequestView(generics.GenericAPIView):
+    serializer_class = serializers.PasswordResetRequestSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response("Password reset link sent (check console in dev mode)")
+    
+class PasswordResetView(generics.GenericAPIView):
+    serializer_class = serializers.PasswordResetSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response("Reset Password Successfully")

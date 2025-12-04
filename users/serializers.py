@@ -1,5 +1,7 @@
 from rest_framework import serializers 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.utils import timezone
+from datetime import timedelta
 
 from . import models
 import uuid
@@ -67,3 +69,50 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 code="Authorization")
 
         return data
+    
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        try:
+            user = models.UserProfile.objects.get(email=value)
+        except models.UserProfile.DoesNotExist:
+            raise serializers.ValidationError({'detail':'User with this email doesnt exist!'})
+        return value
+    
+    def save(self):
+        email = self.validated_data['email']
+        user = models.UserProfile.objects.get(email=email)
+        token = str(uuid.uuid4())
+        user.password_reset_token = token
+        user.password_reset_token_expiry = timezone.now() + timedelta(hours=1)
+        user.save()
+
+        #Add script for sending a email with link + token
+        print(f"===== PASSWORD RESET LINK =====")
+        print(f"http://127.0.0.1:8000/api/auth/reset-password/?token={user.password_reset_token}")
+        print(f"===============================")
+        return user
+
+class PasswordResetSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    new_password = serializers.CharField(min_length=8)
+
+    def validate(self, data):
+        try:
+            user = models.UserProfile.objects.get(password_reset_token=data['token'])
+        except models.UserProfile.DoesNotExist:
+            raise serializers.ValidationError('Invalid Token')
+        if user.password_reset_token_expiry < timezone.now():
+            raise serializers.ValidationError("Token expired!")
+        
+        data['user']=user
+        return data
+    
+    def save(self):
+        user = self.validated_data['user']
+        user.set_password(self.validated_data['new_password'])
+        user.password_reset_token = None
+        user.password_reset_token_expiry = None
+        user.save()
+        return user
